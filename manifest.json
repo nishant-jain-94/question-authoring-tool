@@ -1,0 +1,6 @@
+{
+  "name": "question-authoring-tool",
+  "short_name": "question-authoring-tool",
+  "start_url": "/",
+  "display": "standalone"
+}

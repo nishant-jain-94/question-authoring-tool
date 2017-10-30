@@ -1,0 +1,387 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box-light.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="jquery-import.html">
+
+<dom-module id="question-authoring-tool-app">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">    
+  <template>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+        width: 100%;
+        font-family: 'Lato', sans-serif;
+      }
+      .qa-container {
+        display: flex;
+        height: 100%;
+        width: 100%;
+        background: whitesmoke;
+      }
+      .qa-menu {
+        width: 15%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(-45deg,#3f3c52 0,#161518 100%);
+      }
+      .qa-search {
+        width: 30%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding-left: 20px;
+        padding-right: 20px;
+        background: rgb(250, 250, 250);
+        --paper-listbox-background-color: rgb(250, 250, 250);
+      }
+      .qa-search-title > h1 {
+        font-weight: lighter;
+      }
+      .qa-meta-composer {
+        width: 25%;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding-left: 20px;
+        padding-right: 20px;
+        position: relative;
+        box-sizing: border-box;
+      }
+      .qa-composer {
+        height: 100%;
+        width: 35%;
+        display: flex;
+        flex-direction: column;
+        background: white;
+      }
+      .qa-compose-btn {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+      }
+      .qa-menu-item {
+        font-size: 1em;
+        padding-left: 15px;
+        color: whitesmoke;
+      }
+      .qa-menu > paper-button {
+        --paper-button: {
+          @apply(--layout-horizontal);
+          @apply(--layout-start-justified);
+        }
+      }
+      .qa-meta-composer > .qa-meta-composer-title > h1 {
+        font-weight: lighter !important;
+        /* font-size: 1.5em; */
+      }
+      .qa-action-buttons {
+        display: flex;
+        flex-direction: row-reverse;
+      }
+      .qa-question-creator-btn {
+        display: flex;
+        padding-top: 20px;
+        justify-content: flex-end;
+      }
+      paper-item-body {
+        padding: 10px;
+        font-weight: lighter;
+      }
+      paper-item-body > .primary {
+        font-size: 1.5em;
+      }
+    </style>
+    <div class="qa-container">
+      <div class="qa-menu">
+        <div class="qa-menu-item qa-header"><h1>Scribe</h1></div>
+        <paper-button class="qa-menu-item">Drafts</paper-button>
+        <paper-button class="qa-menu-item">Published Questions</paper-button>
+      </div>
+      <div class="qa-search">
+        <div class="qa-search-title"><h1>Published Questions</h1></div>
+        <paper-listbox>
+          <dom-repeat items="{{publishedQuestions}}">
+            <template>
+              <paper-item>
+                <paper-item-body two-line>
+                  <div class="primary">
+                    {{item.concept}}
+                  </div>
+                  <div secondary>
+                    created by {{item.author.name}}
+                  </div>
+                </paper-item-body>
+              </paper-item>
+            </template>
+          </dom-repeat>
+        </paper-listbox>
+      </div>
+      <div class="qa-meta-composer">
+        <div class="qa-meta-composer-title"><h1>Meta Data</h1></div>
+        <vaadin-combo-box-light selected-item="{{selectedConcept}}" items="{{conceptComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="displayName" item-value-path="displayName">
+          <paper-input value="{{conceptComboBox.searchTerm}}" placeholder="Concept"></paper-input>
+          <template>
+            <style>
+              .vaadin-custom {
+                font-family: 'Lato', sans-serif;
+                font-size: 1.2em;
+              }
+            </style>
+            <div class="vaadin-custom">
+              [[item.displayName]]
+            </div>
+          </template>
+        </vaadin-combo-box-light>
+        <vaadin-combo-box-light selected-item="{{selectedContent}}" items="{{contentComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="displayName" item-value-path="displayName">
+          <paper-input value="{{contentComboBox.searchTerm}}" placeholder="Content"></paper-input>
+          <template>
+            <style>
+              .vaadin-custom {
+                font-family: 'Lato', sans-serif;
+                font-size: 1.2em;
+              }
+            </style>
+            <div class="vaadin-custom">
+              [[item.displayName]]
+            </div>
+          </template>
+        </vaadin-combo-box-light>
+        <vaadin-combo-box-light selected-item="{{selectedExpectedOutcome}}" items="{{expectedOutcomeComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="displayName" item-value-path="displayName">
+          <paper-input value="" placeholder="Expected Outcome"></paper-input>
+          <template>
+              <style>
+                .vaadin-custom {
+                  font-family: 'Lato', sans-serif;
+                  font-size: 1.2em;
+                }
+              </style>
+              <div class="vaadin-custom">
+                Should be able to [[item.displayName]]
+              </div>
+            </template>  
+        </vaadin-combo-box-light>
+        <vaadin-combo-box-light selected-item="{{selectedQuestionType}}" items="{{questionTypeComboBox.suggestedItems}}"            attr-for-value="bind-value" item-label-path="displayName" item-value-path="displayName">
+          <paper-input value="" placeholder="Question Type"></paper-input>
+          <template>
+            <style>
+              .vaadin-custom {
+                font-family: 'Lato', sans-serif;
+                font-size: 1.2em;
+              }
+            </style>
+            <div class="vaadin-custom">
+              [[item.displayName]]
+            </div>
+          </template>  
+        </vaadin-combo-box-light>
+        <div class="qa-question-creator-btn">
+          <paper-button on-click="_renderPlayer">Create Question</paper-button>
+        </div>
+      </div>
+      <div class="qa-composer" id="player"></div>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class QuestionAuthoringToolApp extends Polymer.Element {
+      static get is() { return 'question-authoring-tool-app'; }
+      static get properties() {
+        return {
+          publisedQuestions: {
+            type: Object
+          },
+          conceptComboBox: {
+            type: Object,
+            value: function() {
+              return {
+                searchTerm: '',
+                suggestedItems: []
+              }
+            },
+          },
+          contentComboBox: {
+            type: Object,
+            value: function() {
+              return {
+                searchTerm: '',
+                suggestedItems: []
+              }
+            }
+          },
+          selectedConcept: {
+            type: Object
+          },
+          selectedContent: {
+            type: Object
+          },
+          expectedOutcomeComboBox: {
+            type: Object,
+            value: function() {
+              return {
+                suggestedItems: [
+                  { displayName: 'Remember' },
+                  { displayName: 'Comprehend' },
+                  { displayName: 'Apply' },
+                  { displayName: 'Analyze' },
+                  { displayName: 'Synthesize' },
+                  { displayName: 'Evaluate' }
+                ]
+              }
+            }
+          },
+          questionTypeComboBox: {
+            type: Object,
+            value: function() {
+              return {
+                suggestedItems: [
+                  { 
+                    displayName: 'Multiple Choice Question',
+                    questionType: 'Multiple Choice Question',
+                    player: 'mcq-player'
+                  },
+                  { 
+                    displayName: 'Multiselect Questions',
+                    questionType: 'Multiselect Question',
+                    player: 'msq-player'
+                  },
+                  { 
+                    displayName: 'Subjective Question',
+                    questionType: 'Subjective Question',
+                    player: 'subj-player'
+                  },
+                  { 
+                    displayName: 'Programming Question',
+                    questionType: 'Programming Question',
+                    player: 'prog-question'
+                  }
+                ]
+              }
+            },
+            selectedQuestionType: {
+              type: Object
+            },
+            selectedExpectedOutcome: {
+              type: Object
+            },
+            currentQuestion: {
+              type: Object
+            }
+          }
+        }
+      }
+      
+      constructor() {
+        super();
+      }
+      connectedCallback() {
+        super.connectedCallback();
+        this._fetchPublishedQuestions();
+      }
+
+      _fetchPublishedQuestions() {
+        $.ajax({
+          url: 'http://localhost:4000/question/published',
+          method: 'GET',
+          success: (questions) => {
+            console.log(questions);
+            this.set('publishedQuestions', questions);
+          }
+        });
+      };
+
+      static get observers() {
+        return [
+          '_conceptSearchValueChanged(conceptComboBox.searchTerm)',
+          '_contentSearchValueChanged(contentComboBox.searchTerm)'
+        ]
+      }
+      _conceptSearchValueChanged(searchTerm) {
+        if(searchTerm.length > 3) {
+          $.ajax({
+            url: 'https://concept-engine-dev.stackroute.in/concepts/search',
+            method: 'POST',
+            data: {
+              "searchTerm": searchTerm
+            },
+            success: (results) => {
+              this.set('conceptComboBox.suggestedItems', results);
+            },
+            error: (error) => {
+              console.log(error);
+            }
+          });
+        }
+      }
+      _contentSearchValueChanged(searchTerm) {
+        if(searchTerm.length > 3) {
+          $.ajax({
+            url: 'https://concept-engine-dev.stackroute.in/contents/search',
+            method: 'POST',
+            data: {
+              "searchTerm": searchTerm
+            },
+            success: (results) => {
+              this.set('contentComboBox.suggestedItems', results);
+            },
+            error: (error) => {
+              console.log(error);
+            }
+          });
+        }
+      }
+
+      _renderPlayer() {
+        this._initalizeQuestion();
+        const questionAuthoringResolvedUrl = this.resolveUrl(`../../bower_components/${this.selectedQuestionType.player}/${this.selectedQuestionType.player}-authoring-mode/${this.selectedQuestionType.player}-authoring-mode.html`);        
+        Polymer.importHref(questionAuthoringResolvedUrl);
+        this.$.player.innerHTML = `<${this.selectedQuestionType.player}-authoring-mode id="authoringtool"></${this.selectedQuestionType.player}-authoring-mode>`;
+
+        this.$.player.getElementsByTagName(`${this.selectedQuestionType.player}-authoring-mode`)[0].addEventListener('questionPublished', this._onQuestionPublished.bind(this));
+      }
+
+      _initalizeQuestion() {
+        $.ajax({
+          // url: 'https://scribe-question.herokuapp.com/question/initialize',
+          url: 'http://localhost:4000/question/initialize',
+          success: (initializedQuesion) => {
+            this.currentQuestion = initializedQuesion;
+          }
+        });
+      }
+
+      _onQuestionPublished({ detail }) {
+        this.currentQuestion.concept = this.selectedConcept.displayName;
+        this.currentQuestion.content = this.selectedContent.displayName;
+        this.currentQuestion.expectedOutcome = this.selectedExpectedOutcome.displayName;
+        this.currentQuestion.question = detail;
+        $.post({
+          // url: 'https://scribe-question.herokuapp.com/question/publish',
+          url: 'http://localhost:4000/question/publish',
+          dataType: 'json',
+          data: JSON.stringify(this.currentQuestion),
+          contentType: "application/json; charset=utf-8",
+          success: (publishedQuestion) => {
+            this.$.player.innerHTML = '';
+            this.push('publishedQuestions', publishedQuestion);
+          },
+          error: (error) => {
+            this.$.player.innerHTML = '';
+          }
+        });
+      }
+    }
+
+    window.customElements.define(QuestionAuthoringToolApp.is, QuestionAuthoringToolApp);
+  </script>
+</dom-module>
