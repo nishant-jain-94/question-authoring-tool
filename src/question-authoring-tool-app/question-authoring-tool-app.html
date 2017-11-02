@@ -125,7 +125,7 @@
       </div>
       <div class="qa-meta-composer">
         <div class="qa-meta-composer-title"><h1>Meta Data</h1></div>
-        <vaadin-combo-box-light selected-item="{{selectedConcept}}" items="{{conceptComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="displayName" item-value-path="displayName">
+        <vaadin-combo-box-light selected-item="{{selectedConcept}}" items="{{conceptComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="name" item-value-path="name">
           <paper-input value="{{conceptComboBox.searchTerm}}" placeholder="Concept"></paper-input>
           <template>
             <style>
@@ -135,11 +135,11 @@
               }
             </style>
             <div class="vaadin-custom">
-              [[item.displayName]]
+              [[item.name]]
             </div>
           </template>
         </vaadin-combo-box-light>
-        <vaadin-combo-box-light selected-item="{{selectedContent}}" items="{{contentComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="displayName" item-value-path="displayName">
+        <vaadin-combo-box-light selected-item="{{selectedContent}}" items="{{contentComboBox.suggestedItems}}" attr-for-value="bind-value" item-label-path="name" item-value-path="name">
           <paper-input value="{{contentComboBox.searchTerm}}" placeholder="Content"></paper-input>
           <template>
             <style>
@@ -149,7 +149,7 @@
               }
             </style>
             <div class="vaadin-custom">
-              [[item.displayName]]
+              [[item.name]]
             </div>
           </template>
         </vaadin-combo-box-light>
@@ -309,7 +309,8 @@
       _conceptSearchValueChanged(searchTerm) {
         if(searchTerm.length > 3) {
           $.ajax({
-            url: 'https://concept-engine-dev.stackroute.in/concepts/search',
+            // url: 'https://concept-engine-dev.stackroute.in/concepts/search',
+            url: 'http://localhost:9090/concept/search',
             method: 'POST',
             data: {
               "searchTerm": searchTerm
@@ -326,7 +327,8 @@
       _contentSearchValueChanged(searchTerm) {
         if(searchTerm.length > 3) {
           $.ajax({
-            url: 'https://concept-engine-dev.stackroute.in/contents/search',
+            // url: 'https://concept-engine-dev.stackroute.in/contents/search',
+            url: 'http://localhost:9090/content/search',
             method: 'POST',
             data: {
               "searchTerm": searchTerm
@@ -361,8 +363,8 @@
       }
 
       _onQuestionPublished({ detail }) {
-        this.currentQuestion.concept = this.selectedConcept.displayName;
-        this.currentQuestion.content = this.selectedContent.displayName;
+        this.currentQuestion.concept = this.selectedConcept.name;
+        this.currentQuestion.content = this.selectedContent.name;
         this.currentQuestion.expectedOutcome = this.selectedExpectedOutcome.displayName;
         this.currentQuestion.question = detail;
         $.post({
@@ -373,6 +375,7 @@
           contentType: "application/json; charset=utf-8",
           success: (publishedQuestion) => {
             this.$.player.innerHTML = '';
+            console.log(publishedQuestion);
             this.push('publishedQuestions', publishedQuestion);
           },
           error: (error) => {
