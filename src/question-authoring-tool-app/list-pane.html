@@ -1,0 +1,118 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<dom-module id="list-pane">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet">    
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .qa-list {
+        width: 100%;
+        height: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        --paper-listbox-background-color: #ffffff;
+      }
+      .qa-list-title > h1 {
+        padding-left: 20px;
+        font-weight: lighter;
+      }
+      paper-item-body {
+        padding: 10px;
+        font-weight: lighter;
+      }
+      paper-item-body > .primary {
+        font-size: 1.5em;
+      }
+      .qa-listbox {
+        height: 100%;
+        max-height: 100%;
+        overflow-y: auto;
+      }
+    </style>
+    <div class="qa-list">
+      <div class="qa-list-title"><h1>{{title}}</h1></div>
+      <paper-listbox class="qa-listbox">
+        <dom-repeat items="{{_items}}">
+          <template>
+            <paper-item>
+              <paper-item-body two-line>
+                <div class="primary">
+                  {{item.firstLine}}
+                </div>
+                <div secondary>
+                  {{item.secondLine}}
+                </div>
+              </paper-item-body>
+            </paper-item>
+          </template>
+        </dom-repeat>
+      </paper-listbox>
+    </div>
+  </template>
+  <script>
+    class ListPane extends Polymer.Element {
+      static get is() {
+        return 'list-pane';
+      }
+
+      static get properties() {
+        return {
+          title: {
+            type: String
+          },
+          items: {
+            type: Object
+          },
+          _items: {
+            type: Object,
+            computed: 'computeItems(items.length, firstLineItemPath, secondLineItemPath)'
+          },
+          selectedItem: {
+            type: Object,
+            notify: true,
+          },
+          firstLineItemPath: {
+            type: String
+          },
+          secondLineItemPath: {
+            type: String
+          },
+          thirdLineItemPath: {
+            type: String
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          'itemsChanged(items)'
+        ]
+      }
+
+      computeItems(numberOfItems, firstLineItemPath, secondLineItemPath) {
+        let listItems = [];
+        if(numberOfItems && firstLineItemPath && secondLineItemPath) {
+          listItems = this.items.map(item => {
+             let _item = {};
+             const firstLine = item[firstLineItemPath];
+             const secondLine = item[secondLineItemPath];
+             Object.assign(_item, item, { firstLine, secondLine });
+             return _item;
+          });
+        }
+        return listItems;
+      }
+
+      itemsChanged(items) {
+        console.log(items);
+      }
+    }
+    window.customElements.define(ListPane.is, ListPane);
+  </script>
+</dom-module>
