@@ -231,18 +231,6 @@
               }
             }
           },
-          // listPane: {
-          //   type: Object,
-          //   value: function() {
-          //     return {
-          //       items: [],
-          //       title: '',
-          //       itemsPrimaryValuePath: '',
-          //       itemsSecondaryValuePath: '',
-          //       selectedItem: {},
-          //     }
-          //   }
-          // },
           subject: {
             type: String
           },
@@ -325,7 +313,6 @@
           '_contentSearchValueChanged(contentComboBox.searchTerm)',
           '_foldersPopulated(folders)',
           '_fetchQuestions(selectedFolder)',
-          // '_renderQuestions(selectedFolder)',
         ]
       }
 
@@ -345,12 +332,6 @@
           }
         });
       }
-
-      // _renderQuestions(selectedFolder) {
-      //   this.set('listPane.title', selectedFolder.title);
-      //   this.set('listPane.firstLineItemPath', selectedFolder.firstLineItemPath);
-      //   this.set('listPane.secondLineItemPath', selectedFolder.secondLineItemPath);
-      // }
 
       _conceptSearchValueChanged(searchTerm) {
         if(searchTerm.length > 3) {
@@ -402,8 +383,10 @@
         this.currentQuestion.expectedOutcome = this.selectedExpectedOutcome.displayName;
         this.currentQuestion.evaluator = 'mcq-evaluator';
         this.currentQuestion.questionType = 'Multiple Choice Question';
-        this.currentQuestion.question = detail;
+        this.currentQuestion.answer = detail.answer;
         this.currentQuestion.player = 'mcq-player';
+        delete detail.answer;
+        this.currentQuestion.question = detail;
 
         $.post({
           url: 'http://localhost:4000/question',

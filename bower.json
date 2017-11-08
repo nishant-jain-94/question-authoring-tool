@@ -11,9 +11,9 @@
     "paper-autocomplete": "ellipticaljs/paper-autocomplete#^3.4.0",
     "vaadin-combo-box": "vaadin/vaadin-combo-box#^3.0.1",
     "jquery": "^3.2.1",
-    "mcq-player": "nishant-jain-94/mcq-player#dev-simple-clean-ui",
     "paper-listbox": "^2.0.0",
-    "paper-item": "^2.0.0"
+    "paper-item": "^2.0.0",
+    "mcq-player": "nishant-jain-94/mcq-player#dev-simple-clean-ui"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",
