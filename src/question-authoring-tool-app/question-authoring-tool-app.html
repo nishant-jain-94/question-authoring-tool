@@ -13,6 +13,7 @@
 <link rel="import" href="../../bower_components/web-animations-js/web-animations-next-lite.min.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="../../bower_components/neon-animation/animations/scale-down-animation.html">
+<link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 
 <link rel="import" href="list-pane.html">
 <link rel="import" href="jquery-import.html">
@@ -120,10 +121,7 @@
         height: 50px;
       }
       .csv_upload_form_container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 55vh;
+        margin-top: 50px;
       }
     </style>
     
@@ -225,9 +223,49 @@
         <paper-icon-button on-click="_closeFileUploadDialog" class="overlay-close-btn" icon="close"></paper-icon-button>
       </span>
       <div class="csv_upload_form_container">
-          <vaadin-upload name="myFile" on-upload-success="_closeFileUploadDialog" form-data-name="myFile" method="post" target="http://localhost:4000/fileupload">
-            <span slot="drop-label">Click Upload or drop the CSV file</span>
-          </vaadin-upload>
+        <vaadin-upload id="uploadCSVField" max-files="1" name="myFile" on-upload-success="_closeFileUploadDialog" form-data-name="myFile" method="post" target="http://localhost:4000/fileupload">
+          <span slot="drop-label">Click Upload or drop the CSV file</span>
+        </vaadin-upload>
+        <div class="csv_status_table">
+          <h3>Status of Uploaded CSVs</h3>
+          <vaadin-grid items="[[CSVStatusData]]" size="100">
+        
+            <vaadin-grid-column width="50px" flex-grow="0">
+              <template class="header">#</template>
+              <template>[[index]]</template>
+            </vaadin-grid-column>
+        
+            <vaadin-grid-column width="calc(50% - 400px)">
+              <template class="header">File Name</template>
+              <template>[[item.fileName]]</template>
+            </vaadin-grid-column>
+        
+            <vaadin-grid-column width="calc(50% - 400px)">
+              <template class="header">Status</template>
+              <template>
+                <p style="white-space:normal">[[item.status]]</p>
+              </template>
+            </vaadin-grid-column>
+
+            <vaadin-grid-column width="calc(50% - 100px)">
+              <template class="header">Errors</template>
+              <template>
+                <p style="white-space:normal">[[item.errorMessages]]</p>
+              </template>
+            </vaadin-grid-column>
+
+            <vaadin-grid-column width="calc(50% - 400px)">
+              <template class="header">Uploaded at</template>
+              <template>[[item.updatedAt]]</template>
+            </vaadin-grid-column>
+            
+            <!-- <vaadin-grid-column width="calc(50% - 50px)">
+              <template class="header">Action</template>
+              <template>[[item.name.last]]</template>
+            </vaadin-grid-column> -->
+
+          </vaadin-grid>
+        </div>
       </div>
     </paper-dialog>
   </template>
@@ -350,7 +388,11 @@
             selectedExpectedOutcome: {
               type: Object
             },
-          }
+          },
+          CSVStatusData: {
+            type: Array,
+            notify: true,
+          },
         }
       }
 
@@ -454,10 +496,22 @@
 
       _openFileUploadDialog() {
         this.$.csv_upload.opened = true;
+        this._fetchCSVStatus(this.CSVStatusData);
       }
 
       _closeFileUploadDialog() {
+        this.$.uploadCSVField.files = [];
         this.$.csv_upload.opened = false;
+      }
+
+      _fetchCSVStatus(CSVStatusData) {
+        $.ajax({
+          url: 'http://localhost:4000/fileUpload',
+          method: 'GET',
+          success: (statuses) => {
+            this.set('CSVStatusData', statuses);
+          }
+        });
       }
     }
 
