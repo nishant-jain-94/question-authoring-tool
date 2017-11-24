@@ -110,8 +110,8 @@
       }
       .overlay-close-btn-container{
         position: fixed;
-        right: 30px;
-        top: 15px;
+        right: 20px;
+        top: 5px;
         margin: 0;
         padding: 0;
       }
@@ -121,7 +121,16 @@
         height: 50px;
       }
       .csv_upload_form_container {
-        margin-top: 50px;
+        margin-top: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .csv_status_table{
+        flex-grow: 1;
+      }
+      .csv_status_table_title{
+        text-align: center;
       }
     </style>
     
@@ -227,7 +236,7 @@
           <span slot="drop-label">Click Upload or drop the CSV file</span>
         </vaadin-upload>
         <div class="csv_status_table">
-          <h3>Status of Uploaded CSVs</h3>
+          <h3 class="csv_status_table_title">Status of Uploaded CSVs</h3>
           <vaadin-grid items="[[CSVStatusData]]" size="100">
         
             <vaadin-grid-column width="50px" flex-grow="0">
